@@ -32,8 +32,8 @@ a { color: inherit; }
   position: absolute;
   top: -100%;
   left: var(--space-4);
-  background: var(--forest);
-  color: #F3F1E4;
+  background: var(--card);
+  color: var(--ink);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-sm);
   z-index: 1000;
@@ -44,6 +44,6 @@ a { color: inherit; }
 }
 
 :where(a:any-link, button):focus-visible {
-  outline: 3px solid var(--adult);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }

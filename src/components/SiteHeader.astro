@@ -101,4 +101,9 @@ const links = [
     .nav-desktop { display: none; }
     .menu-btn { display: block; }
   }
+
+  .site-header :where(a, button):focus-visible,
+  .nav-mobile :where(a):focus-visible {
+    outline-color: var(--focus-on-dark);
+  }
 </style>
