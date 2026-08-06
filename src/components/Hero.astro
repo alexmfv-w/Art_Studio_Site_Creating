@@ -1,0 +1,26 @@
+---
+// site/src/components/Hero.astro
+---
+<section class="hero">
+  <h1>Учим видеть руками</h1>
+  <p>Живопись, каллиграфия и керамика в Краснодаре — очно в мастерской и на видеокурсах дома.</p>
+</section>
+
+<style>
+  .hero {
+    padding: var(--space-8) var(--space-6) var(--space-7);
+    background: linear-gradient(135deg, var(--forest) 0%, var(--forest-mid) 55%, #4B5A3B 100%);
+  }
+  .hero h1 {
+    font-size: var(--text-hero);
+    line-height: 1.15;
+    color: #F4F1E4;
+    max-width: 12ch;
+    margin: 0 0 var(--space-4);
+  }
+  .hero p {
+    color: #D6D9C4;
+    max-width: 42ch;
+    font-size: var(--text-body);
+  }
+</style>
