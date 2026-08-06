@@ -1,0 +1,71 @@
+---
+// site/src/components/AudienceSplit.astro
+const panes = [
+  {
+    key: 'adult',
+    title: 'Взрослым',
+    text: 'Живопись, каллиграфия острым пером, скетчинг, керамика — индивидуально и в мини-группах.',
+    href: '/vzroslym',
+  },
+  {
+    key: 'kid',
+    title: 'Детям',
+    text: 'Лепка, пластилинография, брашпен 8+, керамика — с учётом возраста.',
+    href: '/detyam',
+  },
+];
+---
+<section class="audience-split">
+  {panes.map((pane) => (
+    <div class:list={["pane", pane.key]}>
+      <div class="bar"></div>
+      <h3>{pane.title}</h3>
+      <p>{pane.text}</p>
+      <a class="btn" href={pane.href}>Выбрать направление</a>
+    </div>
+  ))}
+</section>
+
+<style>
+  .audience-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .pane {
+    padding: var(--space-6) var(--space-5) var(--space-5);
+    position: relative;
+  }
+  .pane .bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+  }
+  .pane h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    margin: 0 0 var(--space-2);
+  }
+  .pane p {
+    font-size: var(--text-small);
+    margin: 0 0 var(--space-4);
+    max-width: 30ch;
+  }
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: var(--text-small);
+    padding: var(--space-3) var(--space-4);
+  }
+  .pane.adult { background: var(--adult-bg); color: var(--ink); }
+  .pane.adult .bar { background: var(--adult); }
+  .pane.adult .btn { background: var(--adult); color: #F3F1DE; border-radius: var(--radius-sm); }
+
+  .pane.kid { background: var(--kid-bg); color: #4A3B14; }
+  .pane.kid .bar { background: var(--kid); }
+  .pane.kid .btn { background: var(--kid); color: #FFF7E8; border-radius: var(--radius-pill); }
+
+  @media (max-width: 768px) {
+    .audience-split { grid-template-columns: 1fr; }
+  }
+</style>
