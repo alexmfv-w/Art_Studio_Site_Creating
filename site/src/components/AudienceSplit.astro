@@ -1,5 +1,7 @@
 ---
 // site/src/components/AudienceSplit.astro
+import Button from './Button.astro';
+
 const panes = [
   {
     key: 'adult',
@@ -13,7 +15,7 @@ const panes = [
     text: 'Лепка, пластилинография, брашпен 8+, керамика — с учётом возраста.',
     href: '/detyam',
   },
-];
+] as const;
 ---
 <section class="audience-split">
   {panes.map((pane) => (
@@ -21,7 +23,7 @@ const panes = [
       <div class="bar"></div>
       <h3>{pane.title}</h3>
       <p>{pane.text}</p>
-      <a class="btn" href={pane.href}>Выбрать направление</a>
+      <Button href={pane.href} register={pane.key} size="compact">Выбрать направление</Button>
     </div>
   ))}
 </section>
@@ -50,20 +52,11 @@ const panes = [
     margin: 0 0 var(--space-4);
     max-width: 30ch;
   }
-  .btn {
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: var(--text-small);
-    padding: var(--space-3) var(--space-4);
-  }
   .pane.adult { background: var(--adult-bg); color: var(--ink); }
   .pane.adult .bar { background: var(--adult); }
-  .pane.adult .btn { background: var(--adult); color: #F3F1DE; border-radius: var(--radius-sm); }
 
   .pane.kid { background: var(--kid-bg); color: #4A3B14; }
   .pane.kid .bar { background: var(--kid); }
-  .pane.kid .btn { background: var(--kid); color: var(--ink); font-weight: 800; border-radius: var(--radius-pill); }
 
   @media (max-width: 768px) {
     .audience-split { grid-template-columns: 1fr; }

@@ -3,6 +3,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import TrustGrid from '../components/TrustGrid.astro';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import Button from '../components/Button.astro';
 
 const courses = [
   {
@@ -61,7 +62,7 @@ const trustPoints = [
   <TrustGrid heading="Почему у нас" points={trustPoints} accent="var(--kid)" />
 
   <section class="cta">
-    <a class="btn" href="/kontakty">Записаться</a>
+    <Button href="/kontakty" register="kid">Записаться</Button>
   </section>
 </BaseLayout>
 
@@ -87,28 +88,6 @@ const trustPoints = [
     display: flex;
     justify-content: center;
     padding: var(--space-7) var(--space-6);
-  }
-  .btn {
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: var(--text-small);
-    padding: var(--space-3) var(--space-5);
-    background: var(--kid);
-    color: var(--ink);
-    border-radius: var(--radius-pill);
-    transition: filter 150ms ease-out;
-  }
-  .btn:hover {
-    filter: brightness(1.08);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .btn {
-      transition: filter 150ms ease-out, transform 150ms ease-out;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-    }
   }
 
   @media (max-width: 768px) {
