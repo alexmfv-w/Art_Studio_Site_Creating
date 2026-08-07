@@ -3,6 +3,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import TrustGrid from '../components/TrustGrid.astro';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import Button from '../components/Button.astro';
 
 const trustPoints = [
   {
@@ -54,7 +55,7 @@ const trustPoints = [
   </section>
 
   <section class="cta">
-    <a class="btn" href="/kontakty">Записаться</a>
+    <Button href="/kontakty">Записаться</Button>
   </section>
 </BaseLayout>
 
@@ -85,28 +86,6 @@ const trustPoints = [
     display: flex;
     justify-content: center;
     padding: var(--space-7) var(--space-6);
-  }
-  .btn {
-    display: inline-block;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: var(--text-small);
-    padding: var(--space-3) var(--space-5);
-    background: var(--forest);
-    color: #F3F1E4;
-    border-radius: var(--radius-sm);
-    transition: background-color 150ms ease-out;
-  }
-  .btn:hover {
-    background: var(--forest-mid);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .btn {
-      transition: background-color 150ms ease-out, transform 150ms ease-out;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-    }
   }
 
   @media (max-width: 768px) {
