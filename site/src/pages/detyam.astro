@@ -1,10 +1,119 @@
 ---
 // site/src/pages/detyam.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import TrustGrid from '../components/TrustGrid.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+
+const courses = [
+  {
+    title: 'Керамика',
+    badge: '8+',
+    text: 'Лепка из глины, обжиг готовых работ.',
+  },
+  {
+    title: 'Лепка и пластилинография',
+    text: 'Особенно полезны детям с задержкой развития речи.',
+  },
+  {
+    title: 'Каллиграфия брашпеном',
+    badge: '8+',
+    text: 'Ручка-кисть — понятный формат для первого знакомства с каллиграфией.',
+  },
+  {
+    title: 'Скетчинг и леттеринг',
+    text: 'Для подростков — рисование и надписи в популярном сегодня стиле.',
+  },
+];
+
+const trustPoints = [
+  {
+    title: 'Опыт',
+    text: 'Больше 10 лет практики как художник и больше 10 лет преподавания.',
+  },
+  {
+    title: 'Мини-группы',
+    text: 'До 4 человек в группе — учитываем возраст и темп каждого ребёнка.',
+  },
+  {
+    title: 'Обратная связь',
+    text: 'После каждого занятия — видео и фото с занятия, вы видите прогресс ребёнка.',
+  },
+  {
+    title: 'Честная цена',
+    text: 'В стоимость не закладывается аренда помещения — только материалы и работа педагога.',
+  },
+];
 ---
 <BaseLayout title="Детям">
-  <div style="padding: var(--space-6);">
-    <h1>Детям</h1>
-    <p>Раздел в разработке.</p>
-  </div>
+  <section class="intro reveal">
+    <div class="intro-text">
+      <h1>Детям</h1>
+      <p>
+        Раскрываем творческие способности ребёнка, развиваем мелкую
+        моторику, усидчивость, воображение. Прививаем любовь к искусству.
+      </p>
+    </div>
+    <PhotoPlaceholder alt="Ребёнок на занятии в студии" tint="var(--kid)" />
+  </section>
+
+  <TrustGrid heading="Чем занимаемся" points={courses} accent="var(--kid)" />
+
+  <TrustGrid heading="Почему у нас" points={trustPoints} accent="var(--kid)" />
+
+  <section class="cta">
+    <a class="btn" href="/kontakty">Записаться</a>
+  </section>
 </BaseLayout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: center;
+    padding: var(--space-7) var(--space-6);
+    background: var(--kid-bg);
+  }
+  .intro-text h1 {
+    font-size: var(--text-hero);
+    margin: 0 0 var(--space-4);
+  }
+  .intro-text p {
+    color: #4A3B14;
+    font-size: var(--text-body);
+    max-width: 60ch;
+  }
+  .cta {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-7) var(--space-6);
+  }
+  .btn {
+    display: inline-block;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: var(--text-small);
+    padding: var(--space-3) var(--space-5);
+    background: var(--kid);
+    color: var(--ink);
+    border-radius: var(--radius-pill);
+    transition: filter 150ms ease-out;
+  }
+  .btn:hover {
+    filter: brightness(1.08);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn {
+      transition: filter 150ms ease-out, transform 150ms ease-out;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -72,7 +72,7 @@
 ### Кнопки — три регистра
 - **Нейтральная** (`background: var(--forest)`, `color: #F3F1E4`, `border-radius: var(--radius-sm)`) — для общих CTA вне контура: витрина, контакты, B2B-заявки.
 - **Взрослая** (`background: var(--adult)`, `color: #F3F1DE`, `border-radius: var(--radius-sm)`) — для действий внутри контура «Взрослым».
-- **Детская** (`background: var(--kid)`, `color: #FFF7E8`, `border-radius: var(--radius-pill)`, `font-weight: 800`) — для действий внутри контура «Детям»; более крупный радиус и жирнее текст осознанно отличают её по форме, не только по цвету.
+- **Детская** (`background: var(--kid)`, `color: var(--ink)`, `border-radius: var(--radius-pill)`, `font-weight: 800`) — для действий внутри контура «Детям»; более крупный радиус и жирнее текст осознанно отличают её по форме, не только по цвету.
 
 ### Карточки
 `background: var(--card)`, `border: 1px solid var(--line)`, `border-radius: var(--radius-md)`, `padding: var(--space-5)`. Заголовок — `--text-h4` гротеском, описание — `--text-small` цветом `--ink-soft`.
