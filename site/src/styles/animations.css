@@ -1,0 +1,16 @@
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes reveal {
+      from {
+        opacity: 0;
+        translate: 0 16px;
+      }
+    }
+
+    .reveal {
+      animation: reveal auto linear;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+  }
+}
