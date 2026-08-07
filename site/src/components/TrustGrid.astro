@@ -1,0 +1,75 @@
+---
+// site/src/components/TrustGrid.astro
+interface TrustPoint {
+  title: string;
+  text: string;
+}
+interface Props {
+  heading: string;
+  points: TrustPoint[];
+}
+const { heading, points } = Astro.props;
+---
+<section class="trust-grid">
+  <h2>{heading}</h2>
+  <div class="cards">
+    {points.map((point) => (
+      <div class="trust-card reveal">
+        <div class="bar"></div>
+        <h3>{point.title}</h3>
+        <p>{point.text}</p>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .trust-grid {
+    padding: var(--space-7) var(--space-6);
+  }
+  .trust-grid h2 {
+    font-size: var(--text-h2);
+    margin: 0 0 var(--space-6);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-5);
+  }
+  .trust-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    transition: transform 150ms ease-out, border-color 150ms ease-out;
+  }
+  .trust-card .bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--forest);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .trust-card h3 {
+    font-size: var(--text-h4);
+    font-weight: 600;
+    margin: var(--space-2) 0 var(--space-2);
+  }
+  .trust-card p {
+    font-size: var(--text-small);
+    color: var(--ink-soft);
+  }
+  .trust-card:hover,
+  .trust-card:focus-within {
+    border-color: var(--forest);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .trust-card:hover,
+    .trust-card:focus-within {
+      transform: translateY(-2px);
+    }
+  }
+</style>
