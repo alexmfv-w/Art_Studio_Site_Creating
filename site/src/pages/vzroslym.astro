@@ -1,10 +1,96 @@
 ---
 // site/src/pages/vzroslym.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import TrustGrid from '../components/TrustGrid.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import Button from '../components/Button.astro';
+
+const courses = [
+  {
+    title: 'Живопись и рисунок',
+    text: 'Разные техники и материалы — для тех, кто только начинает, и для тех, кто продолжает.',
+  },
+  {
+    title: 'Каллиграфия острым пером',
+    text: 'Классическая техника, требует терпения и точности.',
+  },
+  {
+    title: 'Скетчинг',
+    text: 'Рисование с натуры и по референсам — для отдыха и развития глаза.',
+  },
+  {
+    title: 'Керамика',
+    text: 'Лепка из глины, обжиг готовых работ.',
+  },
+];
+
+const trustPoints = [
+  {
+    title: 'Опыт',
+    text: 'Больше 10 лет практики как художник и больше 10 лет преподавания.',
+  },
+  {
+    title: 'Индивидуальный формат',
+    text: 'Можно заниматься индивидуально, в удобное для вас время — не только в группе.',
+  },
+  {
+    title: 'Обратная связь',
+    text: 'После каждого занятия — видео и фото, видно свой прогресс.',
+  },
+  {
+    title: 'Честная цена',
+    text: 'В стоимость не закладывается аренда помещения — только материалы и работа педагога.',
+  },
+];
 ---
 <BaseLayout title="Взрослым">
-  <div style="padding: var(--space-6);">
-    <h1>Взрослым</h1>
-    <p>Раздел в разработке.</p>
-  </div>
+  <section class="intro reveal">
+    <div class="intro-text">
+      <h1>Взрослым</h1>
+      <p>
+        Живопись, каллиграфия, скетчинг, керамика — индивидуально и в
+        мини-группах.
+      </p>
+    </div>
+    <PhotoPlaceholder alt="Взрослый на занятии живописью в студии" />
+  </section>
+
+  <TrustGrid heading="Чем занимаемся" points={courses} accent="var(--adult)" />
+
+  <TrustGrid heading="Почему у нас" points={trustPoints} accent="var(--adult)" />
+
+  <section class="cta">
+    <Button href="/kontakty" register="adult">Записаться</Button>
+  </section>
 </BaseLayout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: center;
+    padding: var(--space-7) var(--space-6);
+    background: var(--adult-bg);
+  }
+  .intro-text h1 {
+    font-size: var(--text-hero);
+    margin: 0 0 var(--space-4);
+  }
+  .intro-text p {
+    color: var(--ink);
+    font-size: var(--text-body);
+    max-width: 60ch;
+  }
+  .cta {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-7) var(--space-6);
+  }
+
+  @media (max-width: 768px) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
