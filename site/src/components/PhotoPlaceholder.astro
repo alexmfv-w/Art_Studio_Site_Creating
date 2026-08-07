@@ -9,7 +9,7 @@ const { alt, src } = Astro.props;
 {src ? (
   <img class="photo" src={src} alt={alt} />
 ) : (
-  <div class="photo photo-placeholder" role="img" aria-label={alt}></div>
+  <div class="photo photo-placeholder" aria-hidden="true"></div>
 )}
 
 <style>

@@ -1,3 +1,4 @@
+/* site/src/styles/animations.css */
 @media (prefers-reduced-motion: no-preference) {
   @supports ((animation-timeline: view()) and (animation-range: entry)) {
     @keyframes reveal {
@@ -8,7 +9,9 @@
     }
 
     .reveal {
-      animation: reveal auto linear;
+      animation-name: reveal;
+      animation-duration: auto;
+      animation-timing-function: linear;
       animation-timeline: view();
       animation-range: entry 0% entry 40%;
     }
