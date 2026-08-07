@@ -1,0 +1,32 @@
+---
+// site/src/components/SiteFooter.astro
+---
+<footer class="site-footer">
+  <p>© 2026 Кисть и Перо, Краснодар</p>
+  <nav aria-label="Разделы">
+    <a href="/o-studii">О студии</a>
+    <a href="/kontakty">Контакты</a>
+  </nav>
+  <nav aria-label="Соцсети и мессенджеры">
+    <a href="https://vk.ru/kistpero">ВКонтакте</a>
+  </nav>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-5) var(--space-6);
+    border-top: 1px solid var(--line);
+    color: var(--ink-soft);
+    font-size: var(--text-small);
+  }
+  .site-footer a { color: var(--ink-soft); }
+  .site-footer nav {
+    display: flex;
+    gap: var(--space-4);
+  }
+</style>

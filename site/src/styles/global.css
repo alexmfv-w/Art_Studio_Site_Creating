@@ -1,0 +1,49 @@
+/* site/src/styles/global.css */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2 { font-family: var(--font-display); margin: 0; }
+h3, h4 { font-family: var(--font-body); margin: 0; }
+p { margin: 0; }
+a { color: inherit; }
+
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  background: var(--card);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  z-index: 1000;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+:where(a:any-link, button):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
