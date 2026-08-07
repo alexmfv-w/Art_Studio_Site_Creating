@@ -3,19 +3,22 @@
 interface TrustPoint {
   title: string;
   text: string;
+  badge?: string;
 }
 interface Props {
   heading: string;
   points: TrustPoint[];
+  accent?: string;
 }
-const { heading, points } = Astro.props;
+const { heading, points, accent = 'var(--forest)' } = Astro.props;
 ---
-<section class="trust-grid">
+<section class="trust-grid" style={`--accent: ${accent}`}>
   <h2>{heading}</h2>
   <div class="cards">
     {points.map((point) => (
       <div class="trust-card reveal">
         <div class="bar"></div>
+        {point.badge && <span class="badge">{point.badge}</span>}
         <h3>{point.title}</h3>
         <p>{point.text}</p>
       </div>
@@ -50,8 +53,20 @@ const { heading, points } = Astro.props;
     left: 0;
     right: 0;
     height: 6px;
-    background: var(--forest);
+    background: var(--accent);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--ink-soft);
+    color: var(--ink-soft);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-pill);
+    margin: 0 0 var(--space-1);
   }
   .trust-card h3 {
     font-size: var(--text-h4);
@@ -64,7 +79,7 @@ const { heading, points } = Astro.props;
   }
   .trust-card:hover,
   .trust-card:focus-within {
-    border-color: var(--forest);
+    border-color: var(--accent);
   }
   @media (prefers-reduced-motion: no-preference) {
     .trust-card:hover,
