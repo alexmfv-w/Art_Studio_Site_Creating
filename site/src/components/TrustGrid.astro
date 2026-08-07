@@ -53,20 +53,22 @@ const { heading, points, accent = 'var(--forest)' } = Astro.props;
     left: 0;
     right: 0;
     height: 6px;
-    background: var(--accent);
+    background: var(--accent, var(--forest));
     border-radius: var(--radius-md) var(--radius-md) 0 0;
   }
   .badge {
-    display: inline-block;
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
     border: 1px solid var(--ink-soft);
     color: var(--ink-soft);
+    background: var(--card);
     font-family: var(--font-label);
     font-size: var(--text-label);
     text-transform: uppercase;
     letter-spacing: .06em;
     padding: 2px var(--space-2);
     border-radius: var(--radius-pill);
-    margin: 0 0 var(--space-1);
   }
   .trust-card h3 {
     font-size: var(--text-h4);
@@ -79,7 +81,7 @@ const { heading, points, accent = 'var(--forest)' } = Astro.props;
   }
   .trust-card:hover,
   .trust-card:focus-within {
-    border-color: var(--accent);
+    border-color: var(--accent, var(--forest));
   }
   @media (prefers-reduced-motion: no-preference) {
     .trust-card:hover,
