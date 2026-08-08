@@ -16,7 +16,23 @@ from typing import Optional, Tuple
 from urllib.parse import unquote, urlparse
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
-TSV_HEADER = ["file", "description", "width", "height", "orientation"]
+TSV_HEADER = ["file", "description", "tags", "width", "height", "orientation"]
+
+# Группы — только для раскладки кнопок в интерфейсе; в файле теги лежат плоским
+# списком через ';', поэтому новый тег можно добавить, не меняя формат TSV.
+TAG_GROUPS = [
+    ("Аудитория", ["взрослые", "дети", "подростки", "общее"]),
+    ("Направление", [
+        "живопись", "рисунок", "каллиграфия пером", "каллиграфия брашпеном",
+        "керамика", "лепка/пластилинография", "скетчинг", "леттеринг", "роспись",
+    ]),
+    ("В кадре", [
+        "процесс/руки", "готовая работа", "мастерская",
+        "преподаватель", "ученики", "материалы/инструменты",
+    ]),
+    ("Пометки", ["★ на главную", "не публиковать"]),
+]
+KNOWN_TAGS = [t for _, tags in TAG_GROUPS for t in tags]
 
 
 def image_size(path) -> Optional[Tuple[int, int]]:
@@ -83,22 +99,36 @@ def sanitize(text: str) -> str:
     return text.replace("\t", " ").replace("\r", " ").replace("\n", " ").strip()
 
 
-def load_descriptions(tsv_path) -> dict:
-    """Читает уже сохранённые описания, чтобы разметку можно было продолжить.
+def clean_tags(tags) -> str:
+    """Оставляет только теги из согласованного списка и склеивает через ';'.
 
-    Возвращает пустой словарь, если файла ещё нет.
+    Порядок берётся из TAG_GROUPS, а не из порядка кликов — так значение
+    в файле не зависит от того, в каком порядке заказчик нажимал кнопки.
+    """
+    chosen = set(tags or [])
+    return ";".join(t for t in KNOWN_TAGS if t in chosen)
+
+
+def load_entries(tsv_path) -> dict:
+    """Читает сохранённые описания и теги, чтобы разметку можно было продолжить.
+
+    Возвращает пустой словарь, если файла ещё нет. Файлы от ранней версии
+    инструмента (без колонки tags) читаются корректно — теги будут пустыми.
     """
     path = Path(tsv_path)
     if not path.exists():
         return {}
-    descriptions = {}
+    entries = {}
     with open(path, "r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             name = row.get("file")
             if name:
-                descriptions[name] = row.get("description") or ""
-    return descriptions
+                entries[name] = {
+                    "description": row.get("description") or "",
+                    "tags": row.get("tags") or "",
+                }
+    return entries
 
 
 def save_rows(tsv_path, rows) -> None:
@@ -145,6 +175,19 @@ PAGE = """<!doctype html>
   button:disabled { opacity: .4; cursor: default; }
   #status { color: #8b9178; font-size: 13px; margin-left: auto; }
   .hint { color: #6f7660; font-size: 12.5px; }
+  #tags { margin-top: 10px; display: flex; flex-direction: column; gap: 7px; }
+  .tag-group { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .tag-group > .glabel {
+    color: #6f7660; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .05em; min-width: 92px; flex-shrink: 0;
+  }
+  .tag {
+    font: inherit; font-size: 13px; padding: 4px 11px; border-radius: 999px;
+    border: 1px solid #454f38; background: transparent; color: #C7CBA6; cursor: pointer;
+  }
+  .tag:hover { border-color: #6d7a55; }
+  .tag.on { background: #D98A2E; border-color: #D98A2E; color: #262B1F; font-weight: 600; }
+  .tag:focus-visible { outline: 2px solid #ECEEDF; outline-offset: 1px; }
 </style>
 </head>
 <body>
@@ -156,6 +199,7 @@ PAGE = """<!doctype html>
 <div id="stage"><img id="photo" alt=""></div>
 <footer>
   <input id="desc" placeholder="Что на фото? Например: руки за гончарным кругом" autocomplete="off">
+  <div id="tags"></div>
   <div class="row">
     <button id="prev">← Назад</button>
     <button id="next">Вперёд →</button>
@@ -165,14 +209,55 @@ PAGE = """<!doctype html>
 </footer>
 <script>
 let photos = [];
+let groups = [];
 let i = 0;
 let loadedDesc = "";
+let loadedTags = "";
+let selected = new Set();
 
 const $ = (id) => document.getElementById(id);
 
+function renderTagButtons() {
+  const box = $("tags");
+  box.innerHTML = "";
+  groups.forEach(([label, tags]) => {
+    const row = document.createElement("div");
+    row.className = "tag-group";
+    const lbl = document.createElement("span");
+    lbl.className = "glabel";
+    lbl.textContent = label;
+    row.appendChild(lbl);
+    tags.forEach((tag) => {
+      const b = document.createElement("button");
+      b.className = "tag";
+      b.type = "button";
+      b.textContent = tag;
+      b.dataset.tag = tag;
+      b.addEventListener("click", () => {
+        if (selected.has(tag)) { selected.delete(tag); } else { selected.add(tag); }
+        b.classList.toggle("on", selected.has(tag));
+      });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  });
+}
+
+function paintTags() {
+  document.querySelectorAll(".tag").forEach((b) => {
+    b.classList.toggle("on", selected.has(b.dataset.tag));
+  });
+}
+
+function currentTags() { return Array.from(selected); }
+
 async function boot() {
-  const res = await fetch("/api/photos");
-  photos = await res.json();
+  const [photosRes, tagsRes] = await Promise.all([
+    fetch("/api/photos"), fetch("/api/tags")
+  ]);
+  photos = await photosRes.json();
+  groups = await tagsRes.json();
+  renderTagButtons();
   if (!photos.length) {
     $("counter").textContent = "нет изображений в папке";
     $("desc").disabled = true;
@@ -190,6 +275,9 @@ function show(index) {
   $("photo").alt = p.file;
   $("desc").value = p.description || "";
   loadedDesc = p.description || "";
+  loadedTags = p.tags || "";
+  selected = new Set(loadedTags ? loadedTags.split(";") : []);
+  paintTags();
   $("counter").textContent = (i + 1) + " / " + photos.length;
   $("name").textContent = p.file + " · " + p.width + "×" + p.height + " · " + p.orientation;
   $("prev").disabled = i === 0;
@@ -199,16 +287,19 @@ function show(index) {
 
 async function persist() {
   const value = $("desc").value;
-  if (value === loadedDesc) return;
+  const tagsNow = currentTags().join(";");
+  if (value === loadedDesc && tagsNow === loadedTags) return;
   photos[i].description = value;
+  photos[i].tags = tagsNow;
   $("status").textContent = "сохраняю…";
   try {
     await fetch("/api/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ file: photos[i].file, description: value })
+      body: JSON.stringify({ file: photos[i].file, description: value, tags: currentTags() })
     });
     loadedDesc = value;
+    loadedTags = tagsNow;
     $("status").textContent = "сохранено";
     setTimeout(() => { $("status").textContent = ""; }, 1200);
   } catch (e) {
@@ -231,9 +322,10 @@ document.addEventListener("keydown", (e) => {
 });
 window.addEventListener("beforeunload", () => {
   const value = $("desc").value;
-  if (photos.length && value !== loadedDesc) {
+  const tagsNow = currentTags().join(";");
+  if (photos.length && (value !== loadedDesc || tagsNow !== loadedTags)) {
     navigator.sendBeacon("/api/save", new Blob(
-      [JSON.stringify({ file: photos[i].file, description: value })],
+      [JSON.stringify({ file: photos[i].file, description: value, tags: currentTags() })],
       { type: "application/json" }
     ));
   }
@@ -246,19 +338,20 @@ boot();
 
 
 def scan_folder(folder):
-    """Собирает отсортированный список изображений с размерами и описаниями."""
+    """Собирает отсортированный список изображений с размерами, описаниями и тегами."""
     folder = Path(folder)
-    tsv_path = folder / "photos.tsv"
-    saved = load_descriptions(tsv_path)
+    saved = load_entries(folder / "photos.tsv")
     photos = []
     for path in sorted(folder.iterdir()):
         if not path.is_file() or path.suffix.lower() not in IMAGE_EXTENSIONS:
             continue
         size = image_size(path)
         width, height = size if size else (0, 0)
+        entry = saved.get(path.name, {})
         photos.append({
             "file": path.name,
-            "description": saved.get(path.name, ""),
+            "description": entry.get("description", ""),
+            "tags": entry.get("tags", ""),
             "width": width,
             "height": height,
             "orientation": orientation(width, height) if size else "unknown",
@@ -271,7 +364,8 @@ def make_handler(folder, photos, lock):
 
     def write_tsv():
         rows = [
-            (p["file"], p["description"], p["width"], p["height"], p["orientation"])
+            (p["file"], p["description"], p["tags"],
+             p["width"], p["height"], p["orientation"])
             for p in photos
         ]
         save_rows(tsv_path, rows)
@@ -293,6 +387,9 @@ def make_handler(folder, photos, lock):
                 self._send(200, "text/html; charset=utf-8", PAGE.encode("utf-8"))
             elif route == "/api/photos":
                 body = json.dumps(photos, ensure_ascii=False).encode("utf-8")
+                self._send(200, "application/json; charset=utf-8", body)
+            elif route == "/api/tags":
+                body = json.dumps(TAG_GROUPS, ensure_ascii=False).encode("utf-8")
                 self._send(200, "application/json; charset=utf-8", body)
             elif route.startswith("/photo/"):
                 name = unquote(route[len("/photo/"):])
@@ -319,6 +416,7 @@ def make_handler(folder, photos, lock):
                 for p in photos:
                     if p["file"] == name:
                         p["description"] = description
+                        p["tags"] = clean_tags(payload.get("tags") or [])
                         break
                 write_tsv()
             self._send(200, "application/json; charset=utf-8", b'{"ok":true}')
