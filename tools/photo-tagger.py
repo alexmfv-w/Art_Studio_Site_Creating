@@ -20,7 +20,9 @@ TSV_HEADER = ["file", "description", "tags", "width", "height", "orientation"]
 
 # Группы — только для раскладки кнопок в интерфейсе; в файле теги лежат плоским
 # списком через ';', поэтому новый тег можно добавить, не меняя формат TSV.
-TAG_GROUPS = [
+# Обычно список берётся из tools/tags.json; это запасной вариант на случай,
+# если конфига рядом не оказалось.
+DEFAULT_TAG_GROUPS = [
     ("Аудитория", ["взрослые", "дети", "подростки", "общее"]),
     ("Направление", [
         "живопись", "рисунок", "каллиграфия пером", "каллиграфия брашпеном",
@@ -32,7 +34,64 @@ TAG_GROUPS = [
     ]),
     ("Пометки", ["★ на главную", "не публиковать"]),
 ]
-KNOWN_TAGS = [t for _, tags in TAG_GROUPS for t in tags]
+DEFAULT_TAGS_FILE = Path(__file__).resolve().parent / "tags.json"
+
+
+def parse_tag_groups(data):
+    """Проверяет структуру конфига тегов и возвращает список пар (группа, теги).
+
+    Кидает ValueError с понятным текстом — конфиг правит человек руками,
+    поэтому ошибка должна прямо говорить, что именно не так.
+    """
+    if not isinstance(data, dict):
+        raise ValueError(
+            'ожидался объект вида {"Название группы": ["тег", "тег"]}'
+        )
+    groups = []
+    seen = {}
+    for group, tags in data.items():
+        if not isinstance(tags, list) or not all(isinstance(t, str) for t in tags):
+            raise ValueError(
+                'группа «{}»: ожидался список строк'.format(group)
+            )
+        cleaned = [t.strip() for t in tags if t.strip()]
+        if not cleaned:
+            continue
+        for tag in cleaned:
+            if tag in seen:
+                raise ValueError(
+                    'тег «{}» встречается и в группе «{}», и в «{}» — '
+                    'теги должны быть уникальными'.format(tag, seen[tag], group)
+                )
+            seen[tag] = group
+        groups.append((group, cleaned))
+    if not groups:
+        raise ValueError("в конфиге не нашлось ни одного тега")
+    return groups
+
+
+def load_tag_groups(path):
+    """Читает конфиг тегов; если файла нет — возвращает встроенный список."""
+    p = Path(path)
+    if not p.exists():
+        return list(DEFAULT_TAG_GROUPS)
+    with open(p, "r", encoding="utf-8") as f:
+        return parse_tag_groups(json.load(f))
+
+
+def unknown_tags(photos, known):
+    """Считает теги из разметки, которых больше нет в конфиге.
+
+    Нужно, чтобы заказчик заметил, если убрал тег из tags.json уже после
+    того, как проставил его части фотографий.
+    """
+    known_set = set(known)
+    counts = {}
+    for photo in photos:
+        for tag in (photo.get("tags") or "").split(";"):
+            if tag and tag not in known_set:
+                counts[tag] = counts.get(tag, 0) + 1
+    return counts
 
 
 def image_size(path) -> Optional[Tuple[int, int]]:
@@ -99,14 +158,14 @@ def sanitize(text: str) -> str:
     return text.replace("\t", " ").replace("\r", " ").replace("\n", " ").strip()
 
 
-def clean_tags(tags) -> str:
-    """Оставляет только теги из согласованного списка и склеивает через ';'.
+def clean_tags(tags, known) -> str:
+    """Оставляет только теги из конфига и склеивает через ';'.
 
-    Порядок берётся из TAG_GROUPS, а не из порядка кликов — так значение
+    Порядок берётся из конфига, а не из порядка кликов — так значение
     в файле не зависит от того, в каком порядке заказчик нажимал кнопки.
     """
     chosen = set(tags or [])
-    return ";".join(t for t in KNOWN_TAGS if t in chosen)
+    return ";".join(t for t in known if t in chosen)
 
 
 def load_entries(tsv_path) -> dict:
@@ -359,8 +418,9 @@ def scan_folder(folder):
     return photos
 
 
-def make_handler(folder, photos, lock):
+def make_handler(folder, photos, lock, tag_groups):
     tsv_path = Path(folder) / "photos.tsv"
+    known = [t for _, tags in tag_groups for t in tags]
 
     def write_tsv():
         rows = [
@@ -389,7 +449,7 @@ def make_handler(folder, photos, lock):
                 body = json.dumps(photos, ensure_ascii=False).encode("utf-8")
                 self._send(200, "application/json; charset=utf-8", body)
             elif route == "/api/tags":
-                body = json.dumps(TAG_GROUPS, ensure_ascii=False).encode("utf-8")
+                body = json.dumps(tag_groups, ensure_ascii=False).encode("utf-8")
                 self._send(200, "application/json; charset=utf-8", body)
             elif route.startswith("/photo/"):
                 name = unquote(route[len("/photo/"):])
@@ -416,7 +476,7 @@ def make_handler(folder, photos, lock):
                 for p in photos:
                     if p["file"] == name:
                         p["description"] = description
-                        p["tags"] = clean_tags(payload.get("tags") or [])
+                        p["tags"] = clean_tags(payload.get("tags") or [], known)
                         break
                 write_tsv()
             self._send(200, "application/json; charset=utf-8", b'{"ok":true}')
@@ -430,19 +490,52 @@ def main():
     )
     parser.add_argument("folder", help="путь к папке с фотографиями")
     parser.add_argument("--port", type=int, default=8765, help="порт (по умолчанию 8765)")
+    parser.add_argument(
+        "--tags",
+        default=str(DEFAULT_TAGS_FILE),
+        help="файл со списком тегов (по умолчанию tools/tags.json)",
+    )
     args = parser.parse_args()
 
     folder = Path(args.folder).expanduser().resolve()
     if not folder.is_dir():
         raise SystemExit("Папки не существует: {}".format(folder))
 
+    tags_file = Path(args.tags).expanduser()
+    try:
+        tag_groups = load_tag_groups(tags_file)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(
+            "Не удалось разобрать {}: {}\n"
+            "Проверьте запятые и кавычки — это должен быть корректный JSON.".format(
+                tags_file, exc
+            )
+        )
+    except ValueError as exc:
+        raise SystemExit("Ошибка в {}: {}".format(tags_file, exc))
+
+    if not tags_file.exists():
+        print("Файла {} нет — использую встроенный список тегов.".format(tags_file))
+    known = [t for _, tags in tag_groups for t in tags]
+    print("Тегов в конфиге: {} в {} группах".format(len(known), len(tag_groups)))
+
     photos = scan_folder(folder)
     print("Фотографий найдено: {}".format(len(photos)))
     if not photos:
         print("В папке нет .jpg/.jpeg/.png — проверьте путь.")
 
+    stale = unknown_tags(photos, known)
+    if stale:
+        print("\nВнимание: в разметке есть теги, которых нет в конфиге:")
+        for tag, count in sorted(stale.items(), key=lambda kv: -kv[1]):
+            print("  «{}» — на {} фото".format(tag, count))
+        print("Если сохранить такое фото заново, эти теги пропадут.")
+        print("Верните их в {} или снимите осознанно.\n".format(tags_file))
+
     lock = threading.Lock()
-    server = HTTPServer(("127.0.0.1", args.port), make_handler(folder, photos, lock))
+    server = HTTPServer(
+        ("127.0.0.1", args.port), make_handler(folder, photos, lock, tag_groups)
+    )
     url = "http://127.0.0.1:{}/".format(args.port)
     print("Открываю {}".format(url))
     print("Результат пишется в {}".format(folder / "photos.tsv"))

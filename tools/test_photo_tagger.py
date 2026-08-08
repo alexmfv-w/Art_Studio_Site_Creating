@@ -110,16 +110,97 @@ class TestTsvStorage(unittest.TestCase):
             self.assertEqual(loaded["a.jpg"]["tags"], "")
 
     def test_clean_tags_keeps_only_known_values(self):
-        known = photo_tagger.clean_tags(["дети", "керамика", "выдуманный тег"])
-        self.assertEqual(known, "дети;керамика")
+        known = ["дети", "керамика", "★ на главную"]
+        self.assertEqual(
+            photo_tagger.clean_tags(["дети", "керамика", "выдуманный"], known),
+            "дети;керамика",
+        )
+
+    def test_clean_tags_uses_known_order_not_click_order(self):
+        known = ["дети", "керамика", "★ на главную"]
+        self.assertEqual(
+            photo_tagger.clean_tags(["★ на главную", "керамика", "дети"], known),
+            "дети;керамика;★ на главную",
+        )
 
     def test_clean_tags_empty(self):
-        self.assertEqual(photo_tagger.clean_tags([]), "")
+        self.assertEqual(photo_tagger.clean_tags([], ["дети"]), "")
 
-    def test_tag_groups_are_non_empty_and_unique(self):
-        all_tags = [t for _, tags in photo_tagger.TAG_GROUPS for t in tags]
-        self.assertTrue(all_tags)
-        self.assertEqual(len(all_tags), len(set(all_tags)), "теги не должны повторяться")
+
+class TestTagConfig(unittest.TestCase):
+    def test_parses_valid_config_preserving_order(self):
+        data = {"Аудитория": ["дети", "взрослые"], "Пометки": ["★ на главную"]}
+        groups = photo_tagger.parse_tag_groups(data)
+        self.assertEqual(groups[0], ("Аудитория", ["дети", "взрослые"]))
+        self.assertEqual(groups[1], ("Пометки", ["★ на главную"]))
+
+    def test_rejects_non_object(self):
+        with self.assertRaises(ValueError):
+            photo_tagger.parse_tag_groups(["дети", "взрослые"])
+
+    def test_rejects_group_that_is_not_list_of_strings(self):
+        with self.assertRaises(ValueError):
+            photo_tagger.parse_tag_groups({"Аудитория": "дети"})
+        with self.assertRaises(ValueError):
+            photo_tagger.parse_tag_groups({"Аудитория": ["дети", 42]})
+
+    def test_rejects_duplicate_tag_across_groups(self):
+        with self.assertRaises(ValueError) as ctx:
+            photo_tagger.parse_tag_groups(
+                {"Группа А": ["керамика"], "Группа Б": ["керамика"]}
+            )
+        self.assertIn("керамика", str(ctx.exception))
+
+    def test_rejects_config_without_any_tag(self):
+        with self.assertRaises(ValueError):
+            photo_tagger.parse_tag_groups({"Пустая": []})
+
+    def test_trims_whitespace_and_drops_blanks(self):
+        groups = photo_tagger.parse_tag_groups({"Г": ["  дети  ", "", "   "]})
+        self.assertEqual(groups, [("Г", ["дети"])])
+
+    def test_load_falls_back_to_defaults_when_file_missing(self):
+        with tempfile.TemporaryDirectory() as d:
+            groups = photo_tagger.load_tag_groups(Path(d) / "нет.json")
+            self.assertEqual(groups, photo_tagger.DEFAULT_TAG_GROUPS)
+
+    def test_load_reads_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "tags.json"
+            p.write_text(
+                '{"Аудитория": ["дети"]}', encoding="utf-8"
+            )
+            self.assertEqual(photo_tagger.load_tag_groups(p), [("Аудитория", ["дети"])])
+
+    def test_default_tag_groups_are_valid_and_unique(self):
+        # Встроенный список должен сам проходить ту же проверку, что и файл.
+        as_dict = {group: list(tags) for group, tags in photo_tagger.DEFAULT_TAG_GROUPS}
+        self.assertEqual(
+            photo_tagger.parse_tag_groups(as_dict), photo_tagger.DEFAULT_TAG_GROUPS
+        )
+
+    def test_shipped_tags_json_matches_defaults(self):
+        """tags.json в репозитории не должен разъезжаться со встроенным списком."""
+        shipped = Path(__file__).parent / "tags.json"
+        self.assertTrue(shipped.exists(), "tools/tags.json должен существовать")
+        self.assertEqual(
+            photo_tagger.load_tag_groups(shipped), photo_tagger.DEFAULT_TAG_GROUPS
+        )
+
+
+class TestUnknownTagReport(unittest.TestCase):
+    def test_reports_tags_missing_from_config(self):
+        photos = [
+            {"file": "a.jpg", "tags": "дети;керамика"},
+            {"file": "b.jpg", "tags": "дети;старый тег"},
+            {"file": "c.jpg", "tags": ""},
+        ]
+        unknown = photo_tagger.unknown_tags(photos, ["дети", "керамика"])
+        self.assertEqual(unknown, {"старый тег": 1})
+
+    def test_no_report_when_everything_known(self):
+        photos = [{"file": "a.jpg", "tags": "дети"}]
+        self.assertEqual(photo_tagger.unknown_tags(photos, ["дети"]), {})
 
 
 if __name__ == "__main__":
