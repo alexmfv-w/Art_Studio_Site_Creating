@@ -1,45 +1,32 @@
 ---
 // site/src/pages/vzroslym.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import TrustGrid from '../components/TrustGrid.astro';
+import LabelList from '../components/LabelList.astro';
+import FounderNote from '../components/FounderNote.astro';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
 import Button from '../components/Button.astro';
 
 const courses = [
   {
+    medium: 'Разные техники и материалы',
     title: 'Живопись и рисунок',
-    text: 'Разные техники и материалы — для тех, кто только начинает, и для тех, кто продолжает.',
+    text: 'Для тех, кто только начинает, и для тех, кто продолжает.',
   },
   {
+    medium: 'Острое перо',
     title: 'Каллиграфия острым пером',
     text: 'Классическая техника, требует терпения и точности.',
+    meta: '12+',
   },
   {
+    medium: 'Натура, референсы',
     title: 'Скетчинг',
-    text: 'Рисование с натуры и по референсам — для отдыха и развития глаза.',
+    text: 'Рисование для отдыха и развития глаза.',
   },
   {
+    medium: 'Глина, обжиг',
     title: 'Керамика',
     text: 'Лепка из глины, обжиг готовых работ.',
-  },
-];
-
-const trustPoints = [
-  {
-    title: 'Опыт',
-    text: 'Больше 10 лет практики как художник и больше 10 лет преподавания.',
-  },
-  {
-    title: 'Индивидуальный формат',
-    text: 'Можно заниматься индивидуально, в удобное для вас время — не только в группе.',
-  },
-  {
-    title: 'Обратная связь',
-    text: 'После каждого занятия — видео и фото, видно свой прогресс.',
-  },
-  {
-    title: 'Честная цена',
-    text: 'В стоимость не закладывается аренда помещения — только материалы и работа педагога.',
   },
 ];
 ---
@@ -55,9 +42,14 @@ const trustPoints = [
     <PhotoPlaceholder alt="Взрослый на занятии живописью в студии" />
   </section>
 
-  <TrustGrid heading="Чем занимаемся" points={courses} accent="var(--adult)" />
+  <LabelList heading="Чем занимаемся" items={courses} accent="var(--adult)" />
 
-  <TrustGrid heading="Почему у нас" points={trustPoints} accent="var(--adult)" />
+  <FounderNote
+    accent="var(--adult)"
+    photoAlt="Преподаватель студии за работой"
+    text="Я веду студию больше десяти лет — и столько же занимаюсь живописью сама. Беру в группу трёх-пяти человек, не больше: иначе не получается видеть каждого. После занятия снимаю видео с разбором, чтобы вы могли вернуться к нему дома. Занимаемся в моей мастерской — поэтому в цене нет аренды, только материалы и работа."
+    signature="— студия «Кисть и Перо», Краснодар"
+  />
 
   <section class="cta">
     <Button href="/kontakty" register="adult">Записаться</Button>

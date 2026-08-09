@@ -1,32 +1,10 @@
 ---
 // site/src/pages/o-studii.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import TrustGrid from '../components/TrustGrid.astro';
+import FounderNote from '../components/FounderNote.astro';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
 import Button from '../components/Button.astro';
 
-const trustPoints = [
-  {
-    title: 'Опыт',
-    text: 'Больше 10 лет практики как художник и больше 10 лет преподавания — материал объясняется понятно ученику любого возраста.',
-  },
-  {
-    title: 'Мини-группы',
-    text: '3–5 человек в группе (в детских группах — до 4) — внимание к темпу и особенностям каждого, а не общий поток.',
-  },
-  {
-    title: 'Обратная связь',
-    text: 'После каждого занятия — видео и фото с пояснениями педагога, видно, как продвигается ученик.',
-  },
-  {
-    title: 'Честная цена',
-    text: 'Занятия проходят в мастерской на дому у художника — в стоимость не закладывается аренда помещения, только материалы и работа педагога.',
-  },
-  {
-    title: 'Отношение',
-    text: 'Уважительное и внимательное отношение к ученикам и родителям.',
-  },
-];
 ---
 <BaseLayout title="О студии">
   <section class="intro reveal">
@@ -41,7 +19,11 @@ const trustPoints = [
     <PhotoPlaceholder alt="Художница за работой в мастерской" />
   </section>
 
-  <TrustGrid heading="Почему у нас" points={trustPoints} />
+  <FounderNote
+    photoAlt="Преподаватель студии за работой"
+    text="Я веду студию больше десяти лет — и столько же занимаюсь живописью сама. Беру в группу трёх-пяти человек, в детских — до четырёх: иначе не получается видеть каждого. После занятия снимаю видео с разбором, чтобы можно было вернуться к нему дома. Занимаемся в моей мастерской — поэтому в цене нет аренды, только материалы и работа."
+    signature="— студия «Кисть и Перо», Краснодар"
+  />
 
   <section class="format reveal">
     <PhotoPlaceholder alt="Мастерская — рабочая комната" />
