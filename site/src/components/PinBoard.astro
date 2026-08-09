@@ -1,0 +1,111 @@
+---
+// site/src/components/PinBoard.astro
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface PinItem {
+  title: string;
+  text: string;
+  meta?: string;
+  photoAlt?: string;
+  photoSrc?: string;
+}
+interface Props {
+  heading: string;
+  items: PinItem[];
+  accent?: string;
+}
+const { heading, items, accent = 'var(--kid)' } = Astro.props;
+
+// Наклон по индексу, а не случайный: сборка должна быть воспроизводимой,
+// иначе каждый билд давал бы другую вёрстку и нечитаемые диффы.
+const TILTS = ['-1.4deg', '0.9deg', '-0.6deg', '1.5deg', '-1.1deg', '0.5deg'];
+---
+<section class="pinboard" style={`--accent: ${accent}`}>
+  <h2>{heading}</h2>
+  <div class="cards">
+    {items.map((item, i) => (
+      <article class="pin reveal" style={`--tilt: ${TILTS[i % TILTS.length]}`}>
+        <span class="tape" aria-hidden="true"></span>
+        {item.meta && <span class="age">{item.meta}</span>}
+        <div class="photo">
+          <PhotoPlaceholder alt={item.photoAlt || item.title} src={item.photoSrc} tint="var(--kid)" />
+        </div>
+        <h3>{item.title}</h3>
+        <p>{item.text}</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .pinboard {
+    padding: var(--space-7) var(--space-6);
+  }
+  .pinboard h2 {
+    font-size: var(--text-h2);
+    margin: 0 0 var(--space-6);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: var(--space-6) var(--space-5);
+  }
+  .pin {
+    position: relative;
+    background: var(--card);
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    box-shadow: 0 3px 12px rgba(74, 59, 20, .16);
+    transform: rotate(var(--tilt));
+    transition: box-shadow 160ms ease-out;
+  }
+  /* Полоска скотча: чисто декоративная, поэтому скрыта от скринридера. */
+  .pin .tape {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 46px;
+    height: 17px;
+    transform: translateX(-50%) rotate(-4deg);
+    background: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .pin .age {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    padding: 2px var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .pin .photo {
+    margin-bottom: var(--space-3);
+  }
+  .pin h3 {
+    font-family: var(--font-display);
+    font-size: var(--text-h4);
+    font-weight: 700;
+    margin: 0 0 var(--space-2);
+  }
+  .pin p {
+    font-size: var(--text-small);
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .pin:hover,
+  .pin:focus-within {
+    box-shadow: 0 6px 18px rgba(74, 59, 20, .22);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pin {
+      transition: box-shadow 160ms ease-out, transform 160ms ease-out;
+    }
+    /* Наведение выпрямляет карточку — как будто её поправили на доске. */
+    .pin:hover,
+    .pin:focus-within {
+      transform: rotate(0deg) translateY(-2px);
+    }
+  }
+</style>
