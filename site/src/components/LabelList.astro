@@ -1,0 +1,88 @@
+---
+// site/src/components/LabelList.astro
+interface LabelItem {
+  medium: string;
+  title: string;
+  text: string;
+  meta?: string;
+}
+interface Props {
+  heading: string;
+  items: LabelItem[];
+  accent?: string;
+}
+const { heading, items, accent = 'var(--forest)' } = Astro.props;
+---
+<section class="label-list" style={`--accent: ${accent}`}>
+  <h2>{heading}</h2>
+  <div class="rows">
+    {items.map((item) => (
+      <div class="row reveal">
+        <p class="medium">{item.medium}</p>
+        <div class="body">
+          <h3>{item.title}</h3>
+          <p>{item.text}</p>
+        </div>
+        {item.meta && <p class="meta">{item.meta}</p>}
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .label-list {
+    padding: var(--space-7) var(--space-6);
+  }
+  .label-list h2 {
+    font-size: var(--text-h2);
+    margin: 0 0 var(--space-5);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 130px 1fr auto;
+    gap: var(--space-5);
+    align-items: baseline;
+    padding: var(--space-5) 0;
+    border-top: 1px solid var(--line);
+  }
+  /* Более толстая верхняя граница собирает строки в один блок,
+     иначе список читается как набор равнозначных полос. */
+  .row:first-child {
+    border-top: 2px solid var(--accent, var(--forest));
+  }
+  .medium {
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .body h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: var(--text-h3);
+    margin: 0 0 var(--space-2);
+  }
+  .body p {
+    font-size: var(--text-small);
+    color: var(--ink-soft);
+    margin: 0;
+    max-width: 52ch;
+  }
+  .meta {
+    font-size: var(--text-small);
+    color: var(--accent, var(--forest));
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  @media (max-width: 700px) {
+    .row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    .meta { order: -1; }
+  }
+</style>
