@@ -1,51 +1,39 @@
 ---
 // site/src/pages/detyam.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import TrustGrid from '../components/TrustGrid.astro';
+import LabelList from '../components/LabelList.astro';
+import FounderNote from '../components/FounderNote.astro';
+import '../styles/fonts-kids.css';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
 import Button from '../components/Button.astro';
 
 const courses = [
   {
+    medium: 'Глина, обжиг',
     title: 'Керамика',
-    badge: '8+',
     text: 'Лепка из глины, обжиг готовых работ.',
+    meta: '8+',
   },
   {
+    medium: 'Пластилин, глина',
     title: 'Лепка и пластилинография',
     text: 'Особенно полезны детям с задержкой развития речи.',
   },
   {
+    medium: 'Брашпен',
     title: 'Каллиграфия брашпеном',
-    badge: '8+',
     text: 'Ручка-кисть — понятный формат для первого знакомства с каллиграфией.',
+    meta: '8+',
   },
   {
+    medium: 'Бумага, маркеры',
     title: 'Скетчинг и леттеринг',
     text: 'Для подростков — рисование и надписи в популярном сегодня стиле.',
   },
 ];
-
-const trustPoints = [
-  {
-    title: 'Опыт',
-    text: 'Больше 10 лет практики как художник и больше 10 лет преподавания.',
-  },
-  {
-    title: 'Мини-группы',
-    text: 'До 4 человек в группе — учитываем возраст и темп каждого ребёнка.',
-  },
-  {
-    title: 'Обратная связь',
-    text: 'После каждого занятия — видео и фото с занятия, вы видите прогресс ребёнка.',
-  },
-  {
-    title: 'Честная цена',
-    text: 'В стоимость не закладывается аренда помещения — только материалы и работа педагога.',
-  },
-];
 ---
 <BaseLayout title="Детям">
+  <div class="kids">
   <section class="intro reveal">
     <div class="intro-text">
       <h1>Детям</h1>
@@ -57,16 +45,30 @@ const trustPoints = [
     <PhotoPlaceholder alt="Ребёнок на занятии в студии" tint="var(--kid)" />
   </section>
 
-  <TrustGrid heading="Чем занимаемся" points={courses} accent="var(--kid)" />
+  <LabelList heading="Чем занимаемся" items={courses} accent="var(--kid)" />
 
-  <TrustGrid heading="Почему у нас" points={trustPoints} accent="var(--kid)" />
+  <FounderNote
+    accent="var(--kid)"
+    photoAlt="Ребёнок на занятии в студии"
+    photoTint="var(--kid)"
+    text="Беру в детскую группу до четырёх человек — так видно каждого ребёнка и можно идти в его темпе. После занятия снимаю видео и фото, чтобы вы видели, как продвигается ваш художник."
+    signature="— студия «Кисть и Перо», Краснодар"
+  />
 
   <section class="cta">
     <Button href="/kontakty" register="kid">Записаться</Button>
   </section>
+  </div>
 </BaseLayout>
 
 <style>
+  /* Детский регистр: тот же скелет, другие токены.
+     Переопределение scoped на контейнере, а не отдельная вёрстка. */
+  .kids {
+    --font-display: 'Comfortaa', 'Bitter', Georgia, serif;
+    --font-body: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
+    --font-label: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
+  }
   .intro {
     display: grid;
     grid-template-columns: 1fr 1fr;
