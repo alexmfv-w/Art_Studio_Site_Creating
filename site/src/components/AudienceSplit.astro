@@ -53,10 +53,11 @@ const panes = [
     margin: 0 0 var(--space-4);
     max-width: 30ch;
   }
-  .pane.adult { background: var(--adult-bg); color: var(--ink); }
+  /* Парный элемент перехода: разворачивается в intro-секцию раздела. */
+  .pane.adult { background: var(--adult-bg); color: var(--ink); view-transition-name: adult-panel; }
   .pane.adult .bar { background: var(--adult); }
 
-  .pane.kid { background: var(--kid-bg); color: #4A3B14; }
+  .pane.kid { background: var(--kid-bg); color: #4A3B14; view-transition-name: kid-panel; }
   .pane.kid .bar { background: var(--kid); }
 
   @media (max-width: 768px) {
