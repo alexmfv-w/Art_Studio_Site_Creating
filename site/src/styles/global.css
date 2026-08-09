@@ -56,3 +56,32 @@ a { color: inherit; }
   --font-body: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
   --font-label: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
 }
+
+/* Cross-document View Transitions.
+   Правило нужно на обеих сторонах перехода, поэтому лежит в общих стилях.
+   Не поддерживается в Firefox — там просто обычная навигация. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* Морф панели в секцию чуть медленнее дефолтных 250мс:
+     на большой площади быстрый переход читается как рывок. */
+  ::view-transition-group(adult-panel),
+  ::view-transition-group(kid-panel) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(.65, 0, .35, 1);
+  }
+}
+
+/* Возврат на главную с раздела. Цвет наследуется от регистра страницы,
+   поэтому одна и та же ссылка уместна и в оливковом, и в охристом контуре. */
+.back-home {
+  display: inline-block;
+  font-size: var(--text-small);
+  color: inherit;
+  opacity: .75;
+  text-decoration: none;
+  margin-bottom: var(--space-3);
+}
+.back-home:hover { opacity: 1; text-decoration: underline; }
