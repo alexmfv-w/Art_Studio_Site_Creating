@@ -47,3 +47,12 @@ a { color: inherit; }
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
+
+/* Детский регистр: тот же скелет, другие гарнитуры.
+   Класс навешивается либо на всю страницу (/detyam), либо на её часть
+   (детская половина блока «Взрослым/Детям» на главной). */
+.kids {
+  --font-display: 'Comfortaa', 'Bitter', Georgia, serif;
+  --font-body: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
+  --font-label: 'Nunito', 'Golos Text', ui-sans-serif, sans-serif;
+}

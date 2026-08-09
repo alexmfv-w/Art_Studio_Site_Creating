@@ -1,6 +1,7 @@
 ---
 // site/src/components/AudienceSplit.astro
 import Button from './Button.astro';
+import '../styles/fonts-kids.css';
 
 const panes = [
   {
@@ -19,7 +20,7 @@ const panes = [
 ---
 <section class="audience-split">
   {panes.map((pane) => (
-    <div class:list={["pane", pane.key]}>
+    <div class:list={["pane", pane.key, pane.key === 'kid' && 'kids']}>
       <div class="bar"></div>
       <h3>{pane.title}</h3>
       <p>{pane.text}</p>
