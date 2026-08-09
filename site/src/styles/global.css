@@ -73,3 +73,15 @@ a { color: inherit; }
     animation-timing-function: cubic-bezier(.65, 0, .35, 1);
   }
 }
+
+/* Возврат на главную с раздела. Цвет наследуется от регистра страницы,
+   поэтому одна и та же ссылка уместна и в оливковом, и в охристом контуре. */
+.back-home {
+  display: inline-block;
+  font-size: var(--text-small);
+  color: inherit;
+  opacity: .75;
+  text-decoration: none;
+  margin-bottom: var(--space-3);
+}
+.back-home:hover { opacity: 1; text-decoration: underline; }
