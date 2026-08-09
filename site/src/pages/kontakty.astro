@@ -1,10 +1,76 @@
 ---
 // site/src/pages/kontakty.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/Button.astro';
 ---
 <BaseLayout title="Контакты">
-  <div style="padding: var(--space-6);">
+  <section class="contacts reveal">
     <h1>Контакты</h1>
-    <p>Раздел в разработке.</p>
-  </div>
+    <p class="lead">
+      Занимаемся в мастерской на дому у художника — адрес пришлём после
+      записи. Проще всего написать заранее.
+    </p>
+    <div class="channels">
+      <div class="channel">
+        <p class="label">Телефон, MAX</p>
+        <p class="value">8 953 071 67 85</p>
+      </div>
+      <div class="channel">
+        <p class="label">ВКонтакте</p>
+        <p class="value">
+          <a href="https://vk.ru/kistpero">vk.ru/kistpero</a>
+        </p>
+      </div>
+      <div class="channel">
+        <p class="label">Сообщения ВКонтакте</p>
+        <p class="value">
+          <a href="https://vk.me/kistpero">vk.me/kistpero</a>
+        </p>
+      </div>
+    </div>
+    <Button href="https://vk.me/kistpero">Написать в ВКонтакте</Button>
+  </section>
 </BaseLayout>
+
+<style>
+  .contacts {
+    max-width: 640px;
+    padding: var(--space-7) var(--space-6);
+  }
+  .contacts h1 {
+    font-size: var(--text-hero);
+    margin: 0 0 var(--space-4);
+  }
+  .lead {
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0 0 var(--space-6);
+  }
+  .channels {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+  .channel {
+    border-top: 1px solid var(--line);
+    padding-top: var(--space-3);
+  }
+  .channel .label {
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+    margin: 0 0 var(--space-1);
+  }
+  .channel .value {
+    font-size: var(--text-h4);
+    margin: 0;
+  }
+  .channel .value a {
+    text-decoration: none;
+  }
+  .channel .value a:hover {
+    text-decoration: underline;
+  }
+</style>
