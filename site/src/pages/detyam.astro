@@ -1,7 +1,7 @@
 ---
 // site/src/pages/detyam.astro
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LabelList from '../components/LabelList.astro';
+import PinBoard from '../components/PinBoard.astro';
 import FounderNote from '../components/FounderNote.astro';
 import '../styles/fonts-kids.css';
 import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
@@ -9,26 +9,26 @@ import Button from '../components/Button.astro';
 
 const courses = [
   {
-    medium: 'Глина, обжиг',
     title: 'Керамика',
     text: 'Лепка из глины, обжиг готовых работ.',
     meta: '8+',
+    photoAlt: 'Детская работа из глины',
   },
   {
-    medium: 'Пластилин, глина',
     title: 'Лепка и пластилинография',
     text: 'Особенно полезны детям с задержкой развития речи.',
+    photoAlt: 'Ребёнок лепит из пластилина',
   },
   {
-    medium: 'Брашпен',
     title: 'Каллиграфия брашпеном',
     text: 'Ручка-кисть — понятный формат для первого знакомства с каллиграфией.',
     meta: '8+',
+    photoAlt: 'Надпись, написанная брашпеном',
   },
   {
-    medium: 'Бумага, маркеры',
     title: 'Скетчинг и леттеринг',
     text: 'Для подростков — рисование и надписи в популярном сегодня стиле.',
+    photoAlt: 'Скетч в блокноте',
   },
 ];
 ---
@@ -45,7 +45,7 @@ const courses = [
     <PhotoPlaceholder alt="Ребёнок на занятии в студии" tint="var(--kid)" />
   </section>
 
-  <LabelList heading="Чем занимаемся" items={courses} accent="var(--kid)" />
+  <PinBoard heading="Чем занимаемся" items={courses} accent="var(--kid)" />
 
   <FounderNote
     accent="var(--kid)"
