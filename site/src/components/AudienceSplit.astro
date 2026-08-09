@@ -24,7 +24,7 @@ const panes = [
       <div class="bar"></div>
       <h3>{pane.title}</h3>
       <p>{pane.text}</p>
-      <Button href={pane.href} register={pane.key} size="compact">Выбрать направление</Button>
+      <Button href={pane.href} register={pane.key} size="compact" stretched>Выбрать направление</Button>
     </div>
   ))}
 </section>
@@ -59,6 +59,23 @@ const panes = [
 
   .pane.kid { background: var(--kid-bg); color: #4A3B14; view-transition-name: kid-panel; }
   .pane.kid .bar { background: var(--kid); }
+
+  /* Наведение на любую точку карточки триггерит :hover растянутой ссылки
+     (её псевдоэлемент покрывает весь .pane) — здесь ловим это через :has()
+     и даём обратную связь на всю карточку, а не только на маленькую кнопку. */
+  .pane:has(.stretched:focus-visible) {
+    outline: 3px solid currentColor;
+    outline-offset: -3px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pane {
+      transition: transform 150ms ease-out;
+    }
+    .pane:has(.stretched:hover),
+    .pane:has(.stretched:focus-visible) {
+      transform: translateY(-2px);
+    }
+  }
 
   @media (max-width: 768px) {
     .audience-split { grid-template-columns: 1fr; }

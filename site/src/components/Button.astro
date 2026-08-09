@@ -4,10 +4,15 @@ interface Props {
   href: string;
   register?: 'neutral' | 'adult' | 'kid';
   size?: 'cta' | 'compact';
+  /** Растягивает кликабельную область на весь ближайший `position: relative`
+   * предок (например, целую карточку) через псевдоэлемент — вместо того
+   * чтобы делать всю карточку ссылкой, что вложило бы один интерактивный
+   * элемент в другой. */
+  stretched?: boolean;
 }
-const { href, register = 'neutral', size = 'cta' } = Astro.props;
+const { href, register = 'neutral', size = 'cta', stretched = false } = Astro.props;
 ---
-<a class:list={['btn', register, size]} href={href}>
+<a class:list={['btn', register, size, stretched && 'stretched']} href={href}>
   <slot />
 </a>
 
@@ -32,6 +37,15 @@ const { href, register = 'neutral', size = 'cta' } = Astro.props;
   }
   .btn.compact {
     padding: var(--space-3) var(--space-4);
+  }
+  /* inset:0 позиционируется относительно ближайшего позиционированного
+     предка — не самой .btn (она остаётся inline-block, position не задан),
+     а того контейнера-карточки, который его передал. */
+  .btn.stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
   }
 
   .btn.neutral {
